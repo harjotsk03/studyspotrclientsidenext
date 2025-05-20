@@ -1,0 +1,37 @@
+{
+  "name": "thrivetrack",
+  "version": "1.0.0",
+  "description": "ThriveTrack, a platform for tracking and managing your health and fitness goals.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@heroicons/react": "^2.1.1",
+    "autoprefixer": "^10.4.17",
+    "axios": "^1.8.4",
+    "chart.js": "^4.4.9",
+    "framer-motion": "^12.5.0",
+    "lucide-react": "^0.503.0",
+    "mapbox-gl": "^3.12.0",
+    "next": "^14.1.0",
+    "postcss": "^8.4.35",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.6",
+    "react-icons": "^5.5.0",
+    "react-map-gl": "^8.0.4",
+    "react-toastify": "^11.0.5",
+    "tailwindcss": "^3.4.1"
+  },
+  "devDependencies": {
+    "@svgr/webpack": "^8.1.0"
+  }
+}

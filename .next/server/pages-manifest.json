@@ -1,0 +1,8 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/application/addaspot": "pages/application/addaspot.js",
+  "/application/profile": "pages/application/profile.js",
+  "/application/findaspot": "pages/application/findaspot.js"
+}
