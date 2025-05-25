@@ -1,0 +1,147 @@
+void schedule.Schedule_CRMMassUpdateAutomated(String FunctionErrorEmail,String CRMDomain,String CompanyNameShort,Int CRMAPIVersion)
+{
+try 
+{
+	FunctionParamsList = list();
+	FunctionParamsList.add({"OriginModule":"Leads","TriggerValue":"StateCountry"});
+	FunctionParamsList.add({"OriginModule":"Leads","TriggerValue":"Phone"});
+	FunctionParamsList.add({"OriginModule":"Leads","TriggerValue":"General"});
+	FunctionParamsList.add({"OriginModule":"Contacts","TriggerValue":"Phone"});
+	FunctionParamsList.add({"OriginModule":"Contacts","TriggerValue":"General"});
+	FunctionParamsList.add({"OriginModule":"Accounts","TriggerValue":"General"});
+	FunctionParamsList.add({"OriginModule":"Accounts","TriggerValue":"StateCountry"});
+	FunctionParamsList.add({"OriginModule":"Accounts","TriggerValue":"Phone"});
+	FunctionParamsList.add({"OriginModule":"Accounts","TriggerValue":"AccountStatus"});
+	FunctionParamsList.add({"OriginModule":"Deals","TriggerValue":"AccountStatus"});
+	FunctionParamsList.add({"OriginModule":"Deals","TriggerValue":"AccountSync"});
+	Config = zoho.crm.searchRecords("Function_Configs","(Name:equals:MassUpdateIndex)");
+	ConfigRecordID = Config.get(0).get("id");
+	CurrentConfigValue = Config.get(0).get("Value");
+	CurrentOriginModule = FunctionParamsList.get(CurrentConfigValue).get("OriginModule");
+	CurrentTriggerValue = FunctionParamsList.get(CurrentConfigValue).get("TriggerValue");
+	OriginModule = CurrentOriginModule;
+	TriggerValue = CurrentTriggerValue;
+	info OriginModule;
+	info TriggerValue;
+	// 	OriginModule = "Deals";
+	MaxRecordsToProcess = 150;
+	// 	TriggerValue = "AccountSync";
+	FunctionName = "Scheduled_MassUpdate";
+	// 	///////////////////////////////////////////////////////////////////////////////////////
+	// 	// PULL ORG VARIABLES FOR TESTING
+	if(FunctionErrorEmail == null || FunctionErrorEmail == "")
+	{
+		FunctionErrorEmail = zoho.crm.getOrgVariable("CRM_Function_Error_Email");
+		CRMDomain = zoho.crm.getOrgVariable("CRM_Domain");
+		CompanyNameShort = zoho.crm.getOrgVariable("Company_Name_Short");
+		CRMAPIVersion = zoho.crm.getOrgVariable("CRM_API_Version");
+	}
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//***GET RECORD INFO***
+	// No specific record to get initially as this is a scheduled function
+	RecordExists = true;
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//***INITIALIZE VARIABLES***
+	ReqWFTrigOnSameRecord = false;
+	ErrorInfo = null;
+	UpRecordMp = Map();
+	// Variables specific to this function
+	COQLOff = 0;
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//***PULL VARIABLES FROM RECORD***
+	// No specific record to pull from initially
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//***FUNCTION LOGIC***
+	// Create Query String to find all Accounts where Manually_Trigger_Workflows is NOT set to the TriggerValue
+	// Use MaxRecordsToProcess directly in the LIMIT clause
+	QueryString = "select id, Manually_Trigger_Workflows from " + OriginModule + " where Manually_Trigger_Workflows != '" + TriggerValue + "' or Manually_Trigger_Workflows is null LIMIT " + COQLOff.toString() + ", " + MaxRecordsToProcess.toString();
+	info "QueryString " + QueryString;
+	SrchMp = Map();
+	SrchMp.put("select_query",QueryString);
+	// Call COQL Endpoint
+	SrchAccountInfo = invokeurl
+	[
+		url :"https://www.zohoapis.com/crm/v" + CRMAPIVersion + "/coql"
+		type :POST
+		parameters:SrchMp.toString()
+		connection:"zoho_crm"
+	];
+	info "SrchAccountInfo " + SrchAccountInfo;
+	// Ensure No Error With Query
+	if(SrchAccountInfo != null && SrchAccountInfo != "")
+	{
+		if(SrchAccountInfo.containKey("code"))
+		{
+			ErrorInfo = "SrchAccountInfo " + SrchAccountInfo;
+			ErrorCatch = null.toDecimal();
+		}
+		// Check if there are records to process
+		AccountRecords = SrchAccountInfo.get("data");
+		if(AccountRecords != null && AccountRecords.size() > 0)
+		{
+			// Iterate Through The Found Records
+			for each  AccountRecord in AccountRecords
+			{
+				// Get Account details
+				RecordID = AccountRecord.get("id");
+				CurrentTriggerValue = AccountRecord.get("Manually_Trigger_Workflows");
+				info "Processing Record: (ID: " + RecordID + "), Current Trigger Value: " + CurrentTriggerValue;
+				// Create update map for this account
+				UpRecordMp = Map();
+				UpRecordMp.put("Manually_Trigger_Workflows",TriggerValue);
+				// Update the record and trigger workflows
+				UpRecordResp = zoho.crm.updateRecord(OriginModule,RecordID,UpRecordMp,{"trigger":{"workflow","blueprint","approval"}});
+				info "UpRecordResp " + UpRecordResp;
+				// Check for errors in the update
+				if(!UpRecordResp.containKey("Modified_Time"))
+				{
+					ErrorInfo = "Error updating Record " + RecordID + ": " + UpRecordResp;
+					info ErrorInfo;
+					// Continue processing other records
+				}
+			}
+		}
+		else
+		{
+			// No records found matching criteria
+			info "No records found that need processing";
+		}
+	}
+	else
+	{
+		// Empty response
+		info "Empty response from COQL query";
+		if(CurrentConfigValue == 10)
+		{
+			NextConfigValue = "0";
+		}
+		else
+		{
+			NextConfigValue = CurrentConfigValue.toNumber() + 1;
+		}
+		updateMap = Map();
+		updateMap.put("Value",NextConfigValue.toString());
+		updateConfigRecordValue = zoho.crm.updateRecord("Function_Configs",ConfigRecordID,updateMap);
+		info updateConfigRecordValue;
+	}
+	info "Processed up to " + MaxRecordsToProcess + " records";
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//***UPDATE RECORD***
+	// Not applicable for this scheduled function as we're not updating a specific record that triggered the function
+}
+catch (e)
+{
+	info "ErrorInfo " + ErrorInfo;
+	info "error " + e;
+	//Error returned by the try block is stored in the variable - e 
+	// For scheduled functions, we don't have a specific record to link to,
+	// but we'll still send the error email
+	sendmail
+	[
+		from :zoho.loginuserid
+		to :FunctionErrorEmail
+		subject :CompanyNameShort + " - CRM/" + OriginModule + " - " + FunctionName
+		message :"<div>An error occurred in a scheduled script. Please check ASAP.<br></div><div><br></div><div><b>Error details&nbsp;</b><b><br></b></div><div>Error Message: " + e.message + "</div><div>Line Number: " + e.lineNo + "<br></div><div><br></div>ErrorInfo:<br>" + ErrorInfo
+	]
+}
+}

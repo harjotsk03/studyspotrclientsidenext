@@ -24,11 +24,6 @@ self.__BUILD_MANIFEST = {
       "static/chunks/main.js",
       "static/chunks/pages/application/addaspot.js"
     ],
-    "/application/findaspot": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/application/findaspot.js"
-    ],
     "/application/profile": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",

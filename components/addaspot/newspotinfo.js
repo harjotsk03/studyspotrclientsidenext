@@ -101,7 +101,7 @@ export default function NewSpotInfo({ selectedSpot, setSelectedSpot }) {
     <div
       className={`${
         selectedSpot
-          ? "w-full overflow-y-scroll"
+          ? "w-full overflow-y-scroll scrollbar-hide"
           : "w-0 lg:w-full overflow-hidden"
       } h-screen flex flex-col bg-lightBG dark:bg-darkBG border-r border-darkBG/20 dark:border-purple-300/10 pt-16 lg:pt-20 transition-all ease-in-out duration-700`}
     >
