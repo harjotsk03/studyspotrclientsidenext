@@ -14,22 +14,25 @@ export default function LogIn() {
 
   const handleLogin = async () => {
     setError(""); // Clear any previous error
-    if(loginId == null || loginId == ""){
-        showAlert("Please enter your email.");
-        return;
+    if (loginId == null || loginId == "") {
+      showAlert("Please enter your email.");
+      return;
     }
     if (password == null || password == "") {
       showAlert("Please enter your password.");
       return;
     }
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ loginId, password }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ loginId, password }),
+        }
+      );
 
       const data = await response.json();
 
@@ -39,12 +42,28 @@ export default function LogIn() {
 
       console.log("Token:", data.token);
       localStorage.setItem("token", data.token);
-      const redirectTo =
-        router.query.redirect || document.referrer || "/application/addaspot";
-        router.push(redirectTo);
+      const authPages = [
+        `${process.env.NEXTFRONT_PUBLIC_API_URL}/login`,
+        `${process.env.NEXTFRONT_PUBLIC_API_URL}/application/register`,
+        `${process.env.NEXTFRONT_PUBLIC_API_URL}/application/resetpassword`,
+        `${process.env.NEXTFRONT_PUBLIC_API_URL}/application/resetpasswordcode`,
+      ];
 
+      const referrer = document.referrer;
+      const queryRedirect = router.query.redirect;
+
+      const isFromAuthPage = authPages.some(
+        (authPath) =>
+          referrer?.startsWith(authPath) || queryRedirect?.startsWith(authPath)
+      );
+
+      const redirectTo = isFromAuthPage
+        ? "/application/"
+        : queryRedirect || referrer || "/application/addaspot";
+
+      router.push(redirectTo);
     } catch (err) {
-        setError(err.message);
+      setError(err.message);
       showAlert(err.message);
     }
   };
@@ -52,7 +71,7 @@ export default function LogIn() {
   return (
     <Layout>
       <div className="flex flex-col w-full h-screen items-center justify-center bg-lightBG dark:bg-darkBG">
-        <div className="bg-white dark:bg-purple-50/5 px-8 py-6 lg:px-20 lg:py-14 rounded-2xl flex flex-col justify-center gap-2 fade-in-up">
+        <div className="bg-white dark:bg-purple-50/5 px-8 py-6 lg:px-20 lg:py-14 rounded-2xl flex flex-col justify-center gap-2 fade-in-up lg:w-1/3">
           <h1 className="poppins-medium text-lg lg:text-2xl text-black dark:text-purple-200">
             Welcome back
           </h1>
@@ -85,7 +104,10 @@ export default function LogIn() {
                 className="w-full h-max px-4 py-3 rounded-lg bg-black/5 dark:bg-white/5 poppins-light text-xs lg:text-sm text-black dark:text-white"
                 placeholder="Password"
               />
-              <button className="text-xs text-purple-500 dark:text-purple-400 text-right mt-1.5 poppins-regular">
+              <button
+                onClick={() => router.push("/application/resetpassword")}
+                className="text-xs text-purple-500 dark:text-purple-400 text-right mt-1.5 poppins-regular"
+              >
                 Forgot Password
               </button>
             </div>

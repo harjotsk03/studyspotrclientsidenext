@@ -2,7 +2,8 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
+  "/application/findaspot": "pages/application/findaspot.js",
+  "/application/addaspot": "pages/application/addaspot.js",
   "/application/login": "pages/application/login.js",
-  "/application/profile": "pages/application/profile.js",
-  "/application/addaspot": "pages/application/addaspot.js"
+  "/application/profile": "pages/application/profile.js"
 }

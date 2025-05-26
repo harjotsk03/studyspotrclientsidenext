@@ -27,7 +27,6 @@ export default function ProfileDropdown  ({
   const handleLogout = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`);
       localStorage.removeItem("token");
       toggleShowProfileDropdown();
       router.push("/application/login");

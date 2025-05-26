@@ -4,8 +4,13 @@ import { useState } from "react";
 import studySpotrLogo from "../../assets/logos/studyspotrlogoblack.png";
 import studySpotrLogoWhite from "../../assets/logos/studyspotrlogowhite.png";
 import { MdFilterList } from "react-icons/md";
-import { FaBars } from "react-icons/fa";
-import { LuMapPin, LuMapPinPlus } from "react-icons/lu";
+import { FaBars, FaMap, FaMapMarkerAlt } from "react-icons/fa";
+import {
+  LuListCollapse,
+  LuMapPin,
+  LuMapPinPlus,
+  LuMapPinPlusInside,
+} from "react-icons/lu";
 import NavBarButton from "../buttons/NavBarButton";
 import PrimaryButton from "../buttons/PrimaryButton";
 import SecondaryButton from "../buttons/SecondaryButton";
@@ -18,19 +23,19 @@ import ProfileDropdown from "./ProfileDropdown";
 import { AnimatePresence } from "framer-motion";
 
 export default function Nav() {
-    const router = useRouter();
-    const [menuOpen, setMenuOpen] = useState(false);
-    const { toggleMap, toggleList, view } = useViewContext();
-    const currentPath = router.pathname;
-    const {profile, loading} = useProfile();
-    const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { toggleMap, toggleList, view } = useViewContext();
+  const currentPath = router.pathname;
+  const { profile, loading } = useProfile();
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   const toggleDrawer = () => setMenuOpen(!menuOpen);
 
   const handleToggleList = () => {
     toggleList();
     toggleDrawer();
-    router.push("/application/findaspot")
+    router.push("/application/findaspot");
   };
 
   const handleToggleMap = () => {
@@ -39,8 +44,22 @@ export default function Nav() {
     router.push("/application/findaspot");
   };
 
+  const handleToggleListTop = () => {
+    toggleList();
+    router.push("/application/findaspot");
+  };
+
+  const handleToggleMapTop = () => {
+    toggleMap();
+    router.push("/application/findaspot");
+  };
+
   const handleNavigateToAddSpot = () => {
     toggleDrawer();
+    router.push("/application/addaspot");
+  };
+
+  const handleNavigateToAddSpotTop = () => {
     router.push("/application/addaspot");
   };
 
@@ -86,6 +105,25 @@ export default function Nav() {
               width={studySpotrLogo.width}
               height={studySpotrLogo.height}
             />
+          </button>
+
+          <button
+            className="lg:hidden p-2 bg-purple-400/40 dark:bg-purple-200/10 rounded-lg text-purple-950 dark:text-purple-100"
+            onClick={handleToggleMapTop}
+          >
+            <FaMapMarkerAlt size={15} />
+          </button>
+          <button
+            className="lg:hidden p-2 bg-purple-400/40 dark:bg-purple-200/10 rounded-lg text-purple-950 dark:text-purple-100"
+            onClick={handleToggleListTop}
+          >
+            <LuListCollapse size={15} />
+          </button>
+          <button
+            className="lg:hidden p-2 bg-purple-400/40 dark:bg-purple-200/10 rounded-lg text-purple-950 dark:text-purple-100"
+            onClick={handleNavigateToAddSpotTop}
+          >
+            <LuMapPinPlusInside size={15} />
           </button>
 
           <div className="hidden lg:flex flex-row gap-2 items-center ml-6">
@@ -160,10 +198,10 @@ export default function Nav() {
             </button>
           ) : (
             <div className="flex flex-row items-center gap-4">
-              <SecondaryButton
+              {/* <SecondaryButton
                 text={"Sign Up"}
                 onClick={() => router.push("/application/register")}
-              />
+              /> */}
               <PrimaryButton
                 text={"Log In"}
                 onClick={() =>

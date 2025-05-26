@@ -27,10 +27,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/application/addaspot.js"
     ],
-    "/application/profile": [
+    "/application/findaspot": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/application/profile.js"
+      "static/chunks/pages/application/findaspot.js"
+    ],
+    "/application/login": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/application/login.js"
     ]
   },
   "ampFirstPages": []

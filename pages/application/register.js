@@ -57,7 +57,7 @@ export default function Register() {
   return (
     <Layout>
       <div className="flex flex-col w-full h-screen items-center justify-center lg:pt-16 bg-lightBG dark:bg-darkBG">
-        <div className="bg-white dark:bg-purple-50/5 px-8 py-6 lg:px-20 lg:py-14 rounded-2xl flex flex-col justify-center gap-2 fade-in-up">
+        <div className="bg-white dark:bg-purple-50/5 px-8 py-6 lg:px-20 lg:py-14 rounded-2xl flex flex-col justify-center gap-2 fade-in-up w-1/3">
           <h1 className="poppins-medium text-lg lg:text-2xl text-black dark:text-purple-200">
             Join us Now
           </h1>

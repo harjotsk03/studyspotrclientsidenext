@@ -14,13 +14,6 @@ export const useProfile = () => {
       setLoading(true);
       const token = localStorage.getItem("token");
 
-      if (!token) {
-        router.push("/application/login");
-        showAlert("You must be logged in to view this page");
-        setLoading(false);
-        return;
-      }
-
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/profile`,
         {
@@ -34,7 +27,7 @@ export const useProfile = () => {
       setError(null);
     } catch (err) {
       setError(err.response?.data || "Failed to fetch profile");
-      showAlert(err.response?.data || "Failed to fetch profile");
+      // showAlert(err.response?.data || "Failed to fetch profile");
       setProfile(null);
     } finally {
       setLoading(false);
