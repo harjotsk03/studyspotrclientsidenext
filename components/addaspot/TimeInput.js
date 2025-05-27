@@ -84,7 +84,7 @@ export default function TimeInput({
 
       {/* Time Picker Dropdown */}
       {isTimePickerOpen && (
-        <div className="absolute z-20 mt-2 poppins-regular text-textDark2 w-full bg-white dark:bg-purple-400/10 scrollbar-hide rounded-xl max-h-60 min-h-60 overflow-y-auto">
+        <div className="absolute z-20 mt-2 poppins-regular text-textDark2 w-full bg-white dark:bg-darkBG2 scrollbar-hide rounded-xl max-h-60 min-h-60 overflow-y-auto">
           <div className="p-2">
             {timeOptions.map((timeOption) => (
               <button

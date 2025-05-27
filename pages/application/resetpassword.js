@@ -4,6 +4,8 @@ import { useRouter } from "next/router";
 import Layout from "../../components/layouts/Layout";
 import PrimaryButton from "../../components/buttons/PrimaryButton";
 import { AlertContext } from "../../context/alertContext";
+import { AnimatePresence, motion } from "framer-motion";
+import ConfirmPasswordResetCode from "../../components/modals/ConfirmPasswordResetCode";
 
 export default function ResetPassword() {
   const router = useRouter();
@@ -13,58 +15,101 @@ export default function ResetPassword() {
   const { showAlert } = useContext(AlertContext);
 
   useEffect(() => {
-    const emailSentPasswordReset = localStorage.getItem(
-      "emailSentPasswordReset"
-    );
-    const emailSentPasswordResetEmail = localStorage.getItem(
-      "emailSentPasswordResetEmail"
-    );
+    const verifiedJWT = localStorage.getItem("verifiedJWT");
 
-    if (emailSentPasswordReset === "true" && emailSentPasswordResetEmail) {
-      // Redirect them directly to the verification page
-      router.replace(
-        `/application/resetpasswordcode/${emailSentPasswordResetEmail}`
-      );
-    }
+    const isTokenStillValid = async (token) => {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/validate-token`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          }
+        );
+        const data = await response.json();
+
+        if (response.ok) {
+          // Redirect only if token is valid
+          router.replace(`/application/resetpassword/${token}`);
+        } else {
+          localStorage.removeItem("verifiedJWT");
+          localStorage.removeItem("passwordResetEmail");
+          localStorage.setItem("lastPasswordResetEmail", null);
+          router.replace(`/application/resetpassword`);
+        }
+      } catch (err) {
+        localStorage.removeItem("verifiedJWT");
+        localStorage.removeItem("passwordResetEmail");
+        localStorage.setItem("lastPasswordResetEmail", null);
+        router.replace(`/application/resetpassword`);
+        console.error("Token validation failed:", err);
+      }
+    };
+
+    isTokenStillValid(verifiedJWT);
   }, []);
-  
+
+  useEffect(() => {
+    const checkIfRecent = () => {
+      const now = new Date();
+      const lastSentTimeStr = localStorage.getItem("lastPasswordResetEmail");
+      const passwordResetEmail = localStorage.getItem("passwordResetEmail");
+
+      if (passwordResetEmail) {
+        setEmail(passwordResetEmail);
+      }
+
+      if (!lastSentTimeStr) return;
+
+      const lastSentTime = new Date(lastSentTimeStr);
+      const diffInMs = now - lastSentTime;
+
+      if (diffInMs < 3 * 60 * 100000000) {
+        setEmailSent(true);
+      } else {
+        setEmailSent(false);
+      }
+
+      console.log("Difference in ms:", diffInMs);
+    };
+
+    checkIfRecent();
+  }, []);
 
   const sendEmail = async () => {
     try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/sendemailcode?email=${email}`,
-          {
-            method: "GET",
-          }
-        );
-
-        console.log(response)
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          const errorMessage =
-            data.error || data.message || "Verification failed";
-          throw new Error(errorMessage);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/sendemailcode?email=${email}`,
+        {
+          method: "GET",
         }
+      );
 
-        console.log("Verified JWT:", data.jwt);
+      console.log(response);
 
-        router.push(`/application/resetpasswordcode/${email}`);
-        localStorage.setItem("emailSentPasswordReset", true);
-        localStorage.setItem("emailSentPasswordResetEmail", email);
-        setEmailSent(true);
-        showAlert("Verification successful!");
-      } catch (err) {
-          console.error(err)
-        showAlert(err.message);
+      const data = await response.json();
+
+      if (!response.ok) {
+        const errorMessage =
+          data.error || data.message || "Verification failed";
+        throw new Error(errorMessage);
       }
-  }
+      if (response.status == 200) {
+        setEmailSent(true);
+        localStorage.setItem("lastPasswordResetEmail", new Date());
+        localStorage.setItem("passwordResetEmail", email);
+      }
+    } catch (err) {
+      console.error(err);
+      showAlert(err.message);
+    }
+  };
 
   return (
     <Layout>
       <div className="flex flex-col w-full h-screen items-center justify-center bg-lightBG dark:bg-darkBG">
-        <div className="bg-white dark:bg-purple-50/5 px-8 py-6 lg:px-20 lg:py-14 rounded-2xl flex flex-col justify-center gap-2 fade-in-up w-1/3">
+        <div className="bg-white dark:bg-purple-50/5 px-8 py-6 lg:px-20 lg:py-14 rounded-2xl flex flex-col justify-center gap-2 fade-in-up w-10/12 lg:w-1/3">
           <h1 className="poppins-medium text-lg lg:text-2xl text-black dark:text-purple-200">
             Password Reset
           </h1>
@@ -91,6 +136,15 @@ export default function ResetPassword() {
           <PrimaryButton text={"Reset Password"} onClick={sendEmail} />
         </div>
       </div>
+      <AnimatePresence>
+        {emailSent && (
+          <ConfirmPasswordResetCode
+            setEmailSent={setEmailSent}
+            email={email}
+            sendEmail={sendEmail}
+          />
+        )}
+      </AnimatePresence>
     </Layout>
   );
 }

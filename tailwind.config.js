@@ -21,6 +21,7 @@ module.exports = {
         surfaceOneLight: "#57536e",
         surfaceTwoLight: "#87839c",
         darkBG: "#211a24",
+        darkBG2: "#352c38",
         lightBG: "#f2f2f2",
       },
     },
