@@ -151,7 +151,7 @@ export default function ResetPassword() {
   return (
     <Layout>
       <div className="flex flex-col w-full h-screen items-center justify-center bg-lightBG dark:bg-darkBG">
-        <div className="bg-white dark:bg-purple-50/5 px-8 py-6 lg:px-20 lg:py-14 rounded-2xl flex flex-col justify-center gap-2 fade-in-up w-1/3">
+        <div className="bg-white dark:bg-darkBG rounded-2xl px-8 py-6 lg:px-10 lg:py-10 w-10/12 lg:w-1/3 max-w-full">
           <h1 className="poppins-medium text-lg lg:text-2xl text-black dark:text-purple-200">
             Reset Your Password
           </h1>
@@ -163,7 +163,7 @@ export default function ResetPassword() {
             character (#,?,$,@,%,&,*).
           </p>
 
-          <div className="flex flex-col gap-4 mt-2 lg:mt-4 mb-2">
+          <div className="flex flex-col gap-4 mt-2 lg:mt-4 mb-3">
             <div className="flex flex-col gap-2">
               <label className="poppins-light text-xs lg:text-sm text-black dark:text-purple-100">
                 New Password
@@ -192,7 +192,7 @@ export default function ResetPassword() {
           <div className="flex flex-row items-center justify-between mb-4">
             <button
               onClick={() => setShowPassword((prev) => !prev)}
-              className="text-sm poppins-regular text-purple-400 hover:text-purple-300 transition-colors duration-300"
+              className="text-xs lg:text-sm poppins-regular text-purple-400 hover:text-purple-300 transition-colors duration-300"
             >
               {showPassword ? (
                 <div className="flex w-40 flex-row gap-1 items-center">
